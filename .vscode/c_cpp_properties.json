@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/can/baris_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/can/canot_ws/src/final_odev/include/**",
+        "/home/can/canot_ws/src/iha/include/**",
+        "/home/can/baris_ws/src/ilk_paket/include/**",
+        "/home/can/canot_ws/src/robotik_simulasyon/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,251 @@
+
+<!-- Tasarım olarak 5 eksenli bi robot kola sahip base uzvumuzu gerekli alan ve hareket eden bi araç üzerine kurulabilecek şekilde dzayn edilmiştir. --> 
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot">
+    <xacro:include filename="$(find final_odev)/urdf/materials.xml"/>
+
+    <xacro:property name="base_link_x" value="1"/>
+    <xacro:property name="base_link_y" value="0.5"/>
+    <xacro:property name="base_link_z" value="0.1"/>
+
+    <xacro:property name="ana_dondurucu_uzvu_radius" value="0.05"/>
+    <xacro:property name="ana_dondurucu_uzvu_length" value="0.1"/>
+
+    <xacro:property name="first_arm_uzvu_x" value="0.05"/> 
+    <xacro:property name="first_arm_uzvu_y" value="0.05"/>
+    <xacro:property name="first_arm_uzvu_z" value="0.5"/>
+
+    <xacro:property name="kol_uzvu_x" value="0.05"/>
+    <xacro:property name="kol_uzvu_y" value="0.05"/>
+    <xacro:property name="kol_uzvu_z" value="0.3"/>
+
+    <xacro:property name="ikinci_kol_uzvu_x" value="0.05"/>
+    <xacro:property name="ikinci_kol_uzvu_y" value="0.05"/>
+    <xacro:property name="ikinci_kol_uzvu_z" value="0.3"/>
+
+    <xacro:property name="isleyici_uzvu_radius" value="0.04"/>
+    <xacro:property name="isleyici_uzvu_length" value="0.07"/>
+
+    <xacro:property name="atalet_govde_xx" value="${0.83*0.1*0.1}"/>
+    <xacro:property name="atalet_govde_yy" value="${0.83*1*0.1}"/>
+    <xacro:property name="atalet_govde_zz" value="${0.83*1*0.1}"/>
+    <xacro:property name="atalet_govde_kutle" value="1.46"/>
+
+    <xacro:macro name="atalet_matrisi" params="kutle xx yy zz">
+    <inertial>
+        <mass value="${kutle}"/>
+        <inertia ixx="${xx}" ixy="0.0" ixz="0.0" iyy="${yy}" iyz="0.0" izz="${zz}"/>
+    </inertial>
+    </xacro:macro>
+
+
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <box size="${base_link_x} ${base_link_y} ${base_link_z}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${base_link_x} ${base_link_y} ${base_link_z}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </collision>
+        <xacro:atalet_matrisi kutle="${atalet_govde_kutle}" xx="${atalet_govde_xx}" yy="${atalet_govde_yy}" zz="${atalet_govde_zz}"/>
+    </link>
+
+
+    <transmission name ="motor_base_aktarim">
+        <type>transmission_interface/SimpleTrasnmission</type>
+        <joint name="base_link">
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="eklem_base_motor">
+            <mechanicalReduction>50</mechanicalReduction>
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </actuator>
+    </transmission>
+    <joint name="ana_dondurucu_eklemi" type="revolute">
+        <origin xyz="0.2 0.00 0.1" rpy="0.0 0.0 0"/>
+        <parent link="base_link"/>
+        <child link="ana_dondurucu_uzvu"/>
+        <axis xyz="0.0 0.0 0.1"/>
+        <limit lower="-1.57" upper="1.57" effort="17000" velocity="45"/>
+        <calibration rising="0.0"/>
+    </joint>
+    <link name="ana_dondurucu_uzvu">
+        <visual>
+            <geometry>
+                <cylinder radius="${ana_dondurucu_uzvu_radius}" length="${ana_dondurucu_uzvu_length}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="yellow" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${ana_dondurucu_uzvu_radius}" length="${ana_dondurucu_uzvu_length}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </collision>
+        <xacro:atalet_matrisi kutle="${0}" xx="${0}" yy="${0}" zz="${0}"/>
+    </link>
+
+
+    <transmission name ="motor_first_arm_aktarim">
+        <type>transmission_interface/SimpleTrasnmission</type>
+        <joint name="first_arm_eklemi">
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="eklem1_motor">
+            <mechanicalReduction>50</mechanicalReduction>
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </actuator>
+    </transmission>
+    <joint name="first_arm_eklemi" type="revolute">
+        <origin xyz="0.0 0.00 0.05" rpy="0.0 0.0 0"/>
+        <parent link="ana_dondurucu_uzvu"/>
+        <child link="first_arm_uzvu"/>
+        <axis xyz="0.0 0.1 0.0"/>
+        <limit lower="-1.57" upper="1.57" effort="30" velocity="1.0"/>
+        <calibration rising="0.0"/>
+    </joint>
+    <link name="first_arm_uzvu">
+        <visual>
+            <geometry>
+                <box size="${first_arm_uzvu_x} ${first_arm_uzvu_y} ${first_arm_uzvu_z}"/> 
+            </geometry>
+            <origin xyz="0.025 0.0 0.25" rpy="0.0 0.0 0.0"/>
+            <material name ="Yellow"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${first_arm_uzvu_x} ${first_arm_uzvu_y} ${first_arm_uzvu_z}"/> 
+            </geometry>
+            <origin xyz="0.025 0.0 0.25" rpy="0.0 0.0 0.0"/>
+        </collision>
+        <inertial>
+            <mass value="1.0"/>
+           <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="0.5"/>
+        </inertial>
+    </link>
+
+
+    <transmission name="kol_eklemi_aktarim">
+        <type>transmission_interface/SimpleTrasnmission</type>
+        <joint name="kol_eklemi">
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="kol_eklemi_motor">
+            <mechanicalReduction>50</mechanicalReduction>
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </actuator>
+    </transmission>
+    <joint name="kol_eklemi" type="revolute">
+        <origin xyz="0.0 0.05 0.50" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 0.1 0"/>
+        <parent link="first_arm_uzvu"/>
+        <child link="kol_uzvu"/>
+        <calibration rising="0.0"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit lower="-1.57" upper="3.14" effort="30" velocity="1.0"/>
+        <safety_controller k_position="100" k_velocity="1.5" soft_lower_limit="-2.857" soft_upper_limit="2.857"/>
+    </joint>
+    <link name="kol_uzvu">
+        <visual>
+            <geometry>
+                <box size="${kol_uzvu_x} ${kol_uzvu_y} ${kol_uzvu_z}"/>
+            </geometry>
+            <origin xyz="0.025 0.0 0.15" rpy="0.0 0.0 0.0"/>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${kol_uzvu_x} ${kol_uzvu_y} ${kol_uzvu_z}"/>
+            </geometry>
+            <origin xyz="0.025 0.0 0.15" rpy="0.0 0.0 0.0"/>
+        </collision>
+        <inertial>
+            <mass value="1.0"/>
+            <inertia ixx="0.55" ixy="0.0" ixz="0.0" iyy="0.55" iyz="0.0" izz="0.5"/>
+        </inertial>
+    </link>
+
+
+    <transmission name="ikinci_kol_aktarim">
+        <type>transmission_interface/SimpleTrasnmission</type>
+        <joint name="ikinci_kol_eklemi">
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="ikinci_kol_motor">
+            <mechanicalReduction>50</mechanicalReduction>
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </actuator>
+    </transmission>
+    <joint name="ikinci_kol_eklemi" type="revolute">
+        <origin xyz="0.0 -0.05 0.30" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 0.1 0"/>
+        <parent link="kol_uzvu"/>
+        <child link="ikinci_kol_uzvu"/>
+        <calibration rising="0.0"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit lower="-1.57" upper="1.57" effort="30" velocity="1.0"/>
+        <safety_controller k_position="100" k_velocity="1.5" soft_lower_limit="-2.857" soft_upper_limit="2.857"/>
+    </joint>
+    <link name="ikinci_kol_uzvu">
+        <visual>
+            <geometry>
+                <box size="${ikinci_kol_uzvu_x} ${ikinci_kol_uzvu_y} ${ikinci_kol_uzvu_z}"/>
+            </geometry>
+            <origin xyz="0.025 0.0 0.15" rpy="0.0 0.0 0.0"/>
+            <material name="orange"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${ikinci_kol_uzvu_x} ${ikinci_kol_uzvu_y} ${ikinci_kol_uzvu_z}"/>
+            </geometry>
+            <origin xyz="0.025 0.0 0.15" rpy="0.0 0.0 0.0"/>
+        </collision>
+        <inertial>
+            <mass value="1.0"/>
+            <inertia ixx="0.55" ixy="0.0" ixz="0.0" iyy="0.55" iyz="0.0" izz="0.5"/>
+        </inertial>
+    </link>
+
+
+    <transmission name="isleyici__aktarim">
+        <type>transmission_interface/SimpleTrasnmission</type>
+        <joint name="isleyici_eklemi">
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="isleyici_motor">
+            <mechanicalReduction>50</mechanicalReduction>
+            <hardwareInterface>EffortJointInterface</hardwareInterface>
+        </actuator>
+    </transmission>
+    <joint name="isleyici_eklemi" type="revolute">
+        <origin xyz="0.025 0.00 0.3" rpy="0.0 0.0 0"/>
+        <parent link="ikinci_kol_uzvu"/>
+        <child link="isleyici_uzvu"/>
+        <axis xyz="0.0 0.0 0.1"/>
+        <limit lower="-1.57" upper="1.57" effort="17000" velocity="45"/>
+        <calibration rising="0.0"/>
+    </joint>
+    <link name="isleyici_uzvu">
+        <visual>
+            <geometry>
+                <cylinder radius="${isleyici_uzvu_radius}" length="${isleyici_uzvu_length}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="green" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${isleyici_uzvu_radius}" length="${isleyici_uzvu_length}"/>
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </collision>
+        <xacro:atalet_matrisi kutle="${0}" xx="${0}" yy="${0}" zz="${0}"/>
+    </link>
+</robot>
